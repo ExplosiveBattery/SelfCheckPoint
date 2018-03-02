@@ -1,4 +1,4 @@
-# coding = utf-8
+# coding=utf-8
 import requests
 from bs4 import BeautifulSoup
 import re
@@ -72,23 +72,28 @@ class PointCheck(object):
         course_list = re.findall(re.compile('tree.add(.*)'), info)
         course_list = list(map(lambda x: x.replace('"', ''), course_list))
         for course in course_list:
-            course_split = course.strip().split(',')
-            # print(course_split)
-            # -1 表示课程类型
-            if course_split[1] == '-1':
-                course_type = course_split[2].replace('"', '').replace('\'', '')
-                if course_type.find('公共课') != -1 or course_type.find('中华文化') != -1:
-                    self.ci.base_type = '通识课'
-                elif course_type.find('专业基础课') != -1 or course_type.find('专业课') != -1 or course_type.find('实践环节') != -1:
-                    self.ci.base_type = '专业课'
-            if course_split[2].find('](') != -1:
-                # 获取课程号
-                self.ci.code = re.findall(re.compile('([0-9]{9})'), course_split[2])[0]
-                self.ci.name = re.findall(re.compile('](.*)\['), course_split[2])[0]
-                self.ci.point = re.findall(re.compile('\[[0-9]\]'), course_split[2])[0][1:2]
-                self.ci.type = re.findall(re.compile('.修'), course_split[2])[0]
-                print(self.ci.code, self.ci.name)
-                self.ci.push_data()
+            try:
+                course_split = course.strip().split(',')
+                # print(course_split)
+                # -1 表示课程类型
+                if course_split[1] == '-1':
+                    course_type = course_split[2].replace('"', '').replace('\'', '')
+                    if course_type.find('公共课') != -1 or course_type.find('中华文化') != -1:
+                        self.ci.base_type = '通识课'
+                    elif course_type.find('专业基础课') != -1 or course_type.find('专业课') != -1 or course_type.find(
+                            '实践环节') != -1:
+                        self.ci.base_type = '专业课'
+                if course_split[2].find('](') != -1:
+                    # 获取课程号
+                    self.ci.code = re.findall(re.compile('([0-9]{9})'), course_split[2])[0]
+                    self.ci.name = re.findall(re.compile('](.*)\['), course_split[2])[0]
+                    self.ci.point = re.findall(re.compile('\[[0-9]\]'), course_split[2])[0][1:2]
+                    self.ci.type = re.findall(re.compile('.修'), course_split[2])[0]
+                    print(self.ci.code, self.ci.name)
+                    self.ci.push_data()
+            except BaseException as e:
+                print(e)
+                pass
         self.ci.data_array.sort(key=lambda x: x[0])
         self.save_to_excel()
 
@@ -107,10 +112,14 @@ class PointCheck(object):
 
 
 if __name__ == '__main__':
-    print('学号:')
-    username = input()
-    print('密码:')
-    password = input()
+    # print('学号:')
+    # username = input()
+    # print('密码:')
+    # password = input()
+    data = ''
+    data = data.split('=')
+    username = data[0]
+    password = data[1]
     check = PointCheck(username, password)
     check.login()
     check.get_all_course()
