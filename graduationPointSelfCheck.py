@@ -42,11 +42,12 @@ class PointCheck(object):
         self.parse_info(content)
 
     def get_all_course(self):
-        url = 'http://202.115.47.141/gradeLnAllAction.do?type=ln&oper=fainfo&fajhh=2467'
+        self.get_id()
+        url = 'http://zhjw.scu.edu.cn/gradeLnAllAction.do?type=ln&oper=fainfo&fajhh=' + str(self.id)
         content = self.req.get(url=url, headers=self.headers).content.decode('GBK')
         soup = BeautifulSoup(content, 'html5lib')
         class_list = soup.find_all('tr')
-        for i in range(6, 85):
+        for i in range(6, len(class_list) - 9):
             text = class_list[i].text.replace('\n', '').replace('\t', '')
             text = re.subn(re.compile('[  ]+'), ':', text)
             info = text[0].split(':')
@@ -55,6 +56,17 @@ class PointCheck(object):
             self.ci2.point = info[-5]
             self.ci2.type = info[-4]
             self.ci2.push_data2()
+
+        self.save_all()
+
+    def get_id(self):
+        pattern = 'gradeLnAllAction.do\?type\=ln\&oper=fainfo\&fajhh=([0-9]{4})'
+        url = 'http://202.115.47.141/gradeLnAllAction.do?type=ln&oper=fa'
+        content = self.req.get(url=url, headers=self.headers).content.decode('GBK')
+        id = re.findall(re.compile(pattern=pattern), content)[0]
+        print('id', id)
+        self.id = id
+
 
     def parse_info(self, info):
         course_list = re.findall(re.compile('tree.add(.*)'), info)
@@ -78,14 +90,14 @@ class PointCheck(object):
                 print(self.ci.code, self.ci.name)
                 self.ci.push_data()
         self.ci.data_array.sort(key=lambda x: x[0])
-
+        self.save_to_excel()
 
     def save_to_excel(self):
         data = pd.DataFrame(self.ci.data_array)
         pro_course = data.loc[data[0] == '专业课'].sort_values(by=2)
         other_course = data.loc[data[0] == '通识课'].sort_values(by=1)
         data = pd.concat([pro_course, other_course], axis=0)
-        data.to_excel('根据方案统计课程.xlsx', header=False, index=False)
+        data.to_excel('培养方案中已完成课程.xlsx', header=False, index=False)
         print('根据方案统计课程完成')
 
     def save_all(self):
@@ -102,6 +114,9 @@ if __name__ == '__main__':
     check = PointCheck(username, password)
     check.login()
     check.get_all_course()
-    check.save_all()
+    # 重新登陆
+    print('重新登陆，获取培养方案中已完成课程')
+    check = PointCheck(username, password)
+    check.login()
     check.get_program_course()
-    check.save_to_excel()
+
