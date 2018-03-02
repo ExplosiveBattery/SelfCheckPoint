@@ -112,14 +112,14 @@ class PointCheck(object):
 
 
 if __name__ == '__main__':
-    # print('学号:')
-    # username = input()
-    # print('密码:')
-    # password = input()
-    data = ''
-    data = data.split('=')
-    username = data[0]
-    password = data[1]
+    print('学号:')
+    username = input()
+    print('密码:')
+    password = input()
+    # data = ''
+    # data = data.split('=')
+    # username = data[0]
+    # password = data[1]
     check = PointCheck(username, password)
     check.login()
     check.get_all_course()
