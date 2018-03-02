@@ -10,4 +10,4 @@
 ### 运行程序:
 
 > python graduationPointSelfCheck.py  
-根据提示输入用户和密码
+根据提示输入学号和密码
