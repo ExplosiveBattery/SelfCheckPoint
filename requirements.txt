@@ -1,0 +1,6 @@
+beautifulsoup4==4.6.0
+bs4==0.0.1
+certifi==2017.7.27.1
+html5lib==0.9999999
+pandas==0.21.1
+requests==2.12.4
