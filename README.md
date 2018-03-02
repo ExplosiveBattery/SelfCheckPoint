@@ -5,7 +5,7 @@
 > 没有配置python的同学就不用看这个了，直接把账户密码发给我吧...  
 >  
 > 安装pip, 在命令行下运行如下命令:
-> pip install requirements.txt
+> pip install -r requirements.txt
 
 ### 运行程序:
 
