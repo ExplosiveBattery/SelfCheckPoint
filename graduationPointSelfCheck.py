@@ -5,6 +5,7 @@ import re
 from CourseInfo import CourseInfo
 import pandas as pd
 
+
 class PointCheck(object):
     def __init__(self, username, password):
         self.username = username
@@ -14,6 +15,7 @@ class PointCheck(object):
         self.course_type = ''
         self.ci = CourseInfo()
         self.ci2 = CourseInfo()
+
     def get_header(self):
         return {
             'Host': 'zhjw.scu.edu.cn',
@@ -25,6 +27,7 @@ class PointCheck(object):
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/64.0.3282.186 Safari/537.36',
             'Referer': 'http://202.115.47.141/loginAction.do',
         }
+
     def login(self):
         url = 'http://202.115.47.141/loginAction.do'
         res = self.req.post(url, data={'zjh': self.username, 'mm': self.password}, headers=self.headers)
@@ -67,7 +70,6 @@ class PointCheck(object):
         print('id', id)
         self.id = id
 
-
     def parse_info(self, info):
         course_list = re.findall(re.compile('tree.add(.*)'), info)
         course_list = list(map(lambda x: x.replace('"', ''), course_list))
@@ -89,7 +91,7 @@ class PointCheck(object):
                     self.ci.name = re.findall(re.compile('](.*)\['), course_split[2])[0]
                     self.ci.point = re.findall(re.compile('\[[0-9]\]'), course_split[2])[0][1:2]
                     self.ci.type = re.findall(re.compile('.修'), course_split[2])[0]
-                    print(self.ci.code, self.ci.name)
+                    # print(self.ci.code, self.ci.name)
                     self.ci.push_data()
             except BaseException as e:
                 print(e)
@@ -112,14 +114,14 @@ class PointCheck(object):
 
 
 if __name__ == '__main__':
-    print('学号:')
-    username = input()
-    print('密码:')
-    password = input()
-    # data = ''
-    # data = data.split('=')
-    # username = data[0]
-    # password = data[1]
+    # print('学号:')
+    # username = input()
+    # print('密码:')
+    # password = input()
+    data = ''
+    data = data.split('=')
+    username = data[0]
+    password = data[1]
     check = PointCheck(username, password)
     check.login()
     check.get_all_course()
@@ -128,4 +130,3 @@ if __name__ == '__main__':
     check = PointCheck(username, password)
     check.login()
     check.get_program_course()
-
