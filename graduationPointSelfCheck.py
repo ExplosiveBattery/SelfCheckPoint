@@ -32,7 +32,7 @@ class PointCheck(object):
         url = 'http://202.115.47.141/loginAction.do'
         res = self.req.post(url, data={'zjh': self.username, 'mm': self.password}, headers=self.headers)
         content = res.content.decode('GBK')
-        if res.status_code == 200 and content.find('你输入的证件号不存在') == -1:
+        if res.status_code == 200 and content.find('你输入的证件号不存在') == -1 and content.find('您的密码不正确') == -1:
             print('登陆成功')
         else:
             print('登陆失败')
@@ -66,6 +66,9 @@ class PointCheck(object):
         pattern = 'gradeLnAllAction.do\?type\=ln\&oper=fainfo\&fajhh=([0-9]{4})'
         url = 'http://202.115.47.141/gradeLnAllAction.do?type=ln&oper=fa'
         content = self.req.get(url=url, headers=self.headers).content.decode('GBK')
+        if content.find('没有完成评估') != -1:
+            print('未完成评教')
+            exit(2)
         id = re.findall(re.compile(pattern=pattern), content)[0]
         print('id', id)
         self.id = id
@@ -89,11 +92,18 @@ class PointCheck(object):
                     # 获取课程号
                     self.ci.code = re.findall(re.compile('([0-9]{9})'), course_split[2])[0]
                     self.ci.name = re.findall(re.compile('](.*)\['), course_split[2])[0]
-                    self.ci.point = re.findall(re.compile('\[[0-9]\]'), course_split[2])[0][1:2]
+                    try:
+                        self.ci.point = re.findall(re.compile('\[[0-9]\]'), course_split[2])[0][1:2]
+                    except BaseException as e:
+                        print('point:', e)
+                        print('使用另一种方法解析:')
+                        self.ci.point = re.findall(re.compile('\[[0-9]\.[0-9]\]'), course_split[2])[0][1:-1]
+                        print('完成')
                     self.ci.type = re.findall(re.compile('.修'), course_split[2])[0]
                     # print(self.ci.code, self.ci.name)
                     self.ci.push_data()
             except BaseException as e:
+                print(course)
                 print(e)
                 pass
         self.ci.data_array.sort(key=lambda x: x[0])
