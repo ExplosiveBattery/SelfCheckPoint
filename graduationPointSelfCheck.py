@@ -122,6 +122,22 @@ class PointCheck(object):
         data.to_excel('所有课程.xlsx', header=False, index=False)
         print('保存所有课程完成')
 
+    def get_all_program_course(self):
+        url = 'http://zhjw.scu.edu.cn/gradeLnAllAction.do?type=ln&oper=lnfaqk&flag=zx'
+        content = self.req.get(url=url, headers=self.headers).content.decode('GBK')
+        course_list = re.findall(re.compile('tree.add(.*)'), content)
+        course_list = list(map(lambda x: x.replace('"', ''), course_list))
+        all_course = []
+        for course in course_list:
+            print(course)
+            course = re.subn(re.compile('[0-9]+\,\-?[0-9]+\,'), '', course)[0]
+            course = re.subn(re.compile('[0-9]+\,-1\,'), '', course)[0]
+            print(course)
+            all_course.append(course)
+
+        with open('培养方案.txt', 'w', encoding='UTF-8') as w:
+            w.write("\n".join(all_course))
+
 
 if __name__ == '__main__':
     # print('学号:')
@@ -140,3 +156,4 @@ if __name__ == '__main__':
     check = PointCheck(username, password)
     check.login()
     check.get_program_course()
+    # check.get_all_program_course()
